@@ -5,7 +5,8 @@ pygame.init()
 screen = pygame.display.set_mode((1280, 660))
 tempo_inicial = 60000
 
-pygame.mixer.music.load("musica_fundo.mpeg")
+
+
 
 class gato:
     def __init__(self):
@@ -52,9 +53,8 @@ class gato:
             self.gato_animacao(0.5, 2)
         self.gato_movimento(5, -5)
   
-fundo1 = [pygame.transform.scale(pygame.image.load("fundo01.jpeg"), (1280, 660)), 
-          pygame.transform.scale(pygame.image.load("fundo01.jpeg"), (1280, 660))]
-    
+fundo1 = [pygame.transform.scale(pygame.image.load("fundos/fundo01.png"), (1280, 660)), 
+          pygame.transform.scale(pygame.image.load("fundos/fundo02.png"), (1280, 660))]
 fundo_rect = [fundo1[0].get_rect(topleft=(0,0)),fundo1[1].get_rect(topleft=(1280,0))]
 
 def fundo_dinamico(x):
@@ -68,12 +68,12 @@ def fundo_dinamico(x):
 
 gato01 = gato()
 gato01.spritecheetos(8, 1, 200, 200)
-gato01.Gatorect(100, 500)
+gato01.Gatorect(100, 550)
 gato01.keys = pygame.K_w
 
 gato02 = gato()
 gato02.spritecheetos(8, 2, 200, 200)
-gato02.Gatorect(100, 550)
+gato02.Gatorect(100, 500)
 gato02.keys = pygame.K_d
 
 gato03 = gato()
@@ -85,15 +85,54 @@ clock = pygame.time.Clock()
 
 text_Font = pygame.font.Font("minecraft_font.ttf", 40)
 
-jogo = False
+fases = [False, False]
+menu_musik = True
 while True:
     for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 exit()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_1:
-                    jogo = True
-    while jogo:
+                    fases[0] = True
+                    tempo_inicial = pygame.time.get_ticks() + 6500
+                    pygame.mixer.music.load("musicas/musica_corrida.mpeg")
+                    pygame.mixer.music.play()
+    if menu_musik:
+        pygame.mixer.music.load("musicas/musica_menu.mpeg")
+        pygame.mixer.music.play(123123)
+        menu_musik = False
+    while fases[0]:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                exit()
+
+        tempo = (tempo_inicial - pygame.time.get_ticks()) / 1000
+        if tempo <= 0:
+            fases[1] = True
+            tempo_inicial = pygame.time.get_ticks() + 60000
+            fases[0] = False
+            break
+
+        if tempo > 2:
+            texto1 = text_Font.render(f"{tempo:.2f}", False, "white")
+        elif 0.5< tempo <= 2:
+            texto1 = text_Font.render("Preparados?", False, "white")
+        elif tempo <= 0.5:
+            texto1 = text_Font.render("FOI!!!", False, "white")
+        texto1_rect = texto1.get_rect(center=(640, 50))
+
+        screen.blit(fundo1[0], fundo_rect[0])
+        screen.blit(fundo1[1], fundo_rect[1])
+        screen.blit(texto1, texto1_rect)
+        screen.blit(gato01.sprites[gato01.index_int], gato01.sprite_rect)
+        screen.blit(gato02.sprites[gato02.index_int], gato02.sprite_rect)
+        screen.blit(gato03.sprites[gato03.index_int], gato03.sprite_rect)
+
+        pygame.time.wait(3)
+        pygame.display.update()
+        clock.tick(30)
+
+    while fases[1]:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 exit()
@@ -106,12 +145,14 @@ while True:
                     gato03.speed += 1
                 if event.key == pygame.K_0:
                     tempo_inicial = pygame.time.get_ticks() + 60000
+                    pygame.mixer.music.load("musicas/musica_corrida.mpeg")
                     pygame.mixer.music.play(123123)
 
         tempo = (tempo_inicial - pygame.time.get_ticks()) / 1000
         if tempo <= 0:
+            fases[1] = False
             break
-
+        
         texto1 = text_Font.render(f"{tempo:.2f}", False, "white")
         texto1_rect = texto1.get_rect(center=(640, 50))
 
