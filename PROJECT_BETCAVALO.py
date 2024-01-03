@@ -139,6 +139,9 @@ while True:
                         i.index_int = 0
                         i.index_float = 0
                         i.keys = teclas[gatos.index(i)]
+                    imagem_a_rect.centery = 300
+                    imagem_g_rect.centery = 360
+                    imagem_l_rect.centery = 420
                     fases[0] = True
                     tempo_inicial = pygame.time.get_ticks() + 6500
                     pygame.mixer.music.load("musicas/musica_corrida.mpeg")
