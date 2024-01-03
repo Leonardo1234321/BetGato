@@ -13,6 +13,8 @@ class gato:
         self.valor_apostado = 0
         self.keys = pygame.K_0
         self.name = name
+        self.ganhou = False
+        self.clicks = 0
     def spritecheetos(self, x, y, a , b):
         for i in range(0, x):
             self.sprites.append(pygame.image.load(f"gato{y}_correndo/tile00{i}.png"))
@@ -79,17 +81,17 @@ def fundo_dinamico(x):
 
 teclas = [pygame.K_a, pygame.K_g, pygame.K_l]
 
-gato01 = gato("Lindo")
+gato01 = gato("LARANJA")
 gato01.spritecheetos(8, 1, 200, 200)
 gato01.Gatorect(100, 300)#300 # 360 #420
 gato01.keys = teclas[0]
 
-gato02 = gato("Gostoso")
+gato02 = gato("PRETO")
 gato02.spritecheetos(8, 2, 200, 200)
 gato02.Gatorect(100, 360)
 gato02.keys = teclas[1]
 
-gato03 = gato("Charmoso")
+gato03 = gato("CINZA")
 gato03.spritecheetos(8, 3, 200, 200)
 gato03.Gatorect(100, 420)
 gato03.keys = teclas[2]
@@ -110,7 +112,7 @@ creditos_rect = creditos.get_rect(topleft=(950, 610))
 
 botao_seguir = pygame.image.load("elementos_imagens/seta_seguir.png")
 botao_voltar = pygame.image.load("elementos_imagens/seta_voltar.png")
-botao_s_rect = botao_seguir.get_rect(center=(100, 100))
+botao_s_rect = botao_seguir.get_rect(center=(1180, 590))
 botao_v_rect = botao_voltar.get_rect(center=(100, 590))
 crias = pygame.transform.scale(pygame.image.load("elementos_imagens/crias.jpeg"), (1280, 660))
 
@@ -121,8 +123,18 @@ imagem_a_rect = imagem_a.get_rect(center=(30, 300))
 imagem_g_rect = imagem_a.get_rect(center=(30, 360))
 imagem_l_rect = imagem_a.get_rect(center=(30, 420))
 
+tabela = pygame.Surface((700, 700))
+tabela_rect = tabela.get_rect(center=(640, 330))
+tabela.set_alpha(220)
+tabela.fill((0,0,0))
+tabela_texto3 = []
 
-fases = [False, False, False]
+indice_textoAlerta = 0
+
+total = 0
+
+fases = [False, False, False, False, False]
+podendo = True
 menu_musik = True
 while True:
     for event in pygame.event.get():
@@ -130,24 +142,10 @@ while True:
                 exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if botao_rect.collidepoint(event.pos):
-                    fundo_rect[0].left = 0
-                    fundo_rect[1].left = 1280
-                    fundo_rect[2].left = 1280
-                    for i in gatos:
-                        i.sprite_rect.left = 100
-                        i.speed = 0
-                        i.index_int = 0
-                        i.index_float = 0
-                        i.keys = teclas[gatos.index(i)]
-                    imagem_a_rect.centery = 300
-                    imagem_g_rect.centery = 360
-                    imagem_l_rect.centery = 420
-                    fases[0] = True
-                    tempo_inicial = pygame.time.get_ticks() + 6500
-                    pygame.mixer.music.load("musicas/musica_corrida.mpeg")
-                    pygame.mixer.music.play()
+                    podendo = True
+                    fases[4] = True
                 if creditos_rect.collidepoint(event.pos):
-                    fases[2] = True
+                    fases[3] = True
     if menu_musik:
         pygame.mixer.music.load("musicas/musica_menu.mpeg")
         pygame.mixer.music.play(123123)
@@ -160,7 +158,7 @@ while True:
     screen.blit(logo, logo_rect)
     screen.blit(botao_iniciar, botao_rect)
     screen.blit(creditos, creditos_rect)
-    fundo_dinamico(15)
+    fundo_dinamico(16)
     
     for i in gatos:
         i.speed = -0.1
@@ -174,7 +172,8 @@ while True:
         tempo = (tempo_inicial - pygame.time.get_ticks()) / 1000
         if tempo <= 0:
             fases[1] = True
-            tempo_inicial = pygame.time.get_ticks() + 50000
+            tempo_inicial = pygame.time.get_ticks() + 56000
+            indice_textoAlerta = 0
             fases[0] = False
             break
 
@@ -204,10 +203,13 @@ while True:
             if event.type == pygame.KEYDOWN:
                 if event.key == gato01.keys:
                     gato01.speed += 1
+                    gato01.clicks += 1
                 if event.key == gato02.keys:
                     gato02.speed += 1
+                    gato02.clicks += 1
                 if event.key == gato03.keys:
                     gato03.speed += 1
+                    gato03.clicks += 1
 
         
         chegada = pygame.rect.Rect((fundo_rect[2].left + 1065), 221, 32, 311)
@@ -215,7 +217,22 @@ while True:
         screen.blit(fundo1[0], fundo_rect[0])
         screen.blit(fundo1[1], fundo_rect[1])
         screen.blit(fundo1[2], fundo_rect[2])
-        fundo_dinamico(15)
+        fundo_dinamico(16)
+
+        if tempo > 0:
+            texto1 = text_Font.render(f"{tempo:.2f}", False, "white")
+            texto1_rect = texto1.get_rect(center=(640, 50))
+            texto_alerta = [text_Font.render(f"Mudando as teclas em {tempo - 35:.2f}", False, "white"), 
+                            text_Font.render(f"Mudando as teclas em {tempo - 15:.2f}", False, "white"),
+                            text_Font.render(f"", False, "white")]
+            texto_alerta_rect = texto_alerta[indice_textoAlerta].get_rect(center=(640, 88))
+            screen.blit(texto1, texto1_rect)
+            screen.blit(texto_alerta[indice_textoAlerta], texto_alerta_rect)
+        else:
+            texto1 = text_Font.render("A linha de chegada esta proxima..", False, "white")
+            texto1_rect = texto1.get_rect(center=(640, 50))
+            screen.blit(texto1, texto1_rect)
+
         if 34.9 <= tempo < 35:
             gato01.keys = teclas[2]
             gato02.keys = teclas[0]
@@ -223,29 +240,24 @@ while True:
             imagem_a_rect.centery = 360
             imagem_g_rect.centery = 420
             imagem_l_rect.centery = 300
-        elif 19.9 <= tempo < 20:
+            indice_textoAlerta = 1
+        elif 14.9 <= tempo < 15:
             gato01.keys = teclas[1]
             gato02.keys = teclas[2]
             gato03.keys = teclas[0]
             imagem_a_rect.centery = 420
             imagem_g_rect.centery = 300
             imagem_l_rect.centery = 360
+            indice_textoAlerta = 2
         elif tempo <= 0:
             fim = True
             for i in gatos:
                 if chegada.collidepoint(i.sprite_rect.centerx, i.sprite_rect.centery):
-                    print(f"{i.name} GANHOU")
+                    tempo_inicial = pygame.time.get_ticks() + 20000
+                    i.ganhou = True
+                    fases[2] = True
                     fases[1] = False
                     break
-        if tempo > 0:
-            texto1 = text_Font.render(f"{tempo:.2f}", False, "white")
-            texto1_rect = texto1.get_rect(center=(640, 50))
-            screen.blit(texto1, texto1_rect)
-        else:
-            texto1 = text_Font.render("A linha de chegada esta proxima..", False, "white")
-            texto1_rect = texto1.get_rect(center=(640, 50))
-            screen.blit(texto1, texto1_rect)
-
         
         screen.blit(gato01.sprites[gato01.index_int], gato01.sprite_rect)
         screen.blit(gato02.sprites[gato02.index_int], gato02.sprite_rect)
@@ -266,9 +278,57 @@ while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 exit()
+        tempo = (tempo_inicial - pygame.time.get_ticks())/1000
+        screen.blit(fundo1[0], fundo_rect[0])
+        screen.blit(fundo1[1], fundo_rect[1])
+        screen.blit(fundo1[2], fundo_rect[2])
+        fundo_dinamico(16)
+        
+        screen.blit(gato01.sprites[gato01.index_int], gato01.sprite_rect)
+        screen.blit(gato02.sprites[gato02.index_int], gato02.sprite_rect)
+        screen.blit(gato03.sprites[gato03.index_int], gato03.sprite_rect)
+
+        for i in gatos:
+            if i.ganhou == True:
+                y = 300
+                texto1 = text_Font.render(f"VITORIA DO GATO {i.name}", False, "black")
+                texto2 =  text_Font.render(f"VITORIA DO GATO {i.name}", False, "white")
+                texto3 = creditos_font.render(f"Valor final dos Ganhadores: R${total:.2f}", False, "white")
+                
+                texto1_rect = texto1.get_rect(center=(640, 150))
+                texto2_rect = texto2.get_rect(center=(637, 150))
+                texto3_rect = texto3.get_rect(topleft=(400, 500))
+                for i in gatos:
+                    tabela_texto3.append([creditos_font.render(f"{i.name} clicks: {i.clicks}", False, "white"),  
+                    creditos_font.render(f"{i.name} clicks: {i.clicks}",  False, "white").get_rect(topleft=(400, y))])
+                    y += 50
+                i.ganhou = False
+        screen.blit(tabela, tabela_rect)    
+        for i in tabela_texto3:
+            screen.blit(i[0], i[1])
+        screen.blit(texto1, texto1_rect)
+        screen.blit(texto2, texto2_rect)
+        screen.blit(texto3, texto3_rect)
+        if tempo <= 0:
+            for i in gatos:
+                i.valor_apostado = 0
+            fases[2] = False
+            menu_musik = True
+            break
+        gato01.corrida()
+        gato02.corrida()
+        gato03.corrida()
+        pygame.time.wait(3)
+        pygame.display.update()
+        clock.tick(30)
+
+    while fases[3]:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if botao_v_rect.collidepoint(event.pos):
-                    fases[2] = False
+                    fases[3] = False
                     break
 
         screen.blit(crias, (0,0))
@@ -278,6 +338,80 @@ while True:
         pygame.time.wait(3)    
         pygame.display.update()
         clock.tick(30)
-    pygame.time.wait(3)    
+    
+    while fases[4]:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                exit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if botao_v_rect.collidepoint(event.pos):
+                    fundo_rect[0].left = 0
+                    fundo_rect[1].left = 1280
+                    fundo_rect[2].left = 1280
+                    for i in gatos:
+                        i.sprite_rect.left = 100
+                        i.speed = 0
+                        i.index_int = 0
+                        i.index_float = 0
+                        i.keys = teclas[gatos.index(i)]
+                        i.valor_apostado = 0
+                    gato01.sprite_rect.center=(100, 300)
+                    gato02.sprite_rect.center=(100, 360)
+                    gato03.sprite_rect.center=(100, 420)
+                    fases[4] = False
+                    podendo = False
+                    break
+                if botao_s_rect.collidepoint(event.pos):
+                    fundo_rect[0].left = 0
+                    fundo_rect[1].left = 1280
+                    fundo_rect[2].left = 1280
+                    for i in gatos:
+                        i.sprite_rect.left = 100
+                        i.speed = 0
+                        i.index_int = 0
+                        i.index_float = 0
+                        i.keys = teclas[gatos.index(i)]
+                    gato01.sprite_rect.center=(100, 300)
+                    gato02.sprite_rect.center=(100, 360)
+                    gato03.sprite_rect.center=(100, 420)
+                    imagem_a_rect.centery = 300
+                    imagem_g_rect.centery = 360
+                    imagem_l_rect.centery = 420
+                    tempo_inicial = pygame.time.get_ticks() + 6500
+                    pygame.mixer.music.load("musicas/musica_corrida.mpeg")
+                    pygame.mixer.music.play()
+                    podendo = False
+                    fases[0] = True
+                    fases[4] = False
+                    break
+        
+        pygame.draw.rect(screen, (226, 99, 16), (0, 0, 1280, 660))
+        screen.blit(botao_voltar, botao_v_rect)
+        screen.blit(botao_seguir, botao_s_rect)
+
+        gato_frame = 150
+        if podendo:
+            for i in gatos:
+                i.index_int = 1
+                texto4 = creditos_font.render(f"{i.name}", False, "White")
+                texto5 = creditos_font.render(f"valor: R${i.valor_apostado}", False, "White")
+                texto4_rect = texto4.get_rect(center=(gato_frame, 275))
+                texto5_rect = texto4.get_rect(center=(gato_frame, 325))
+                surface = pygame.Surface((200, 200))
+                surface.set_alpha(200)
+                surface.fill((210, 73, 0))
+                i.sprite_rect.centery = 150
+                i.sprite_rect.centerx = gato_frame
+                screen.blit(surface, i.sprite_rect)
+                screen.blit(i.sprites[i.index_int], i.sprite_rect)
+                screen.blit(texto4, texto4_rect)
+                screen.blit(texto5, texto5_rect)
+                gato_frame += 225
+        logo2 = pygame.transform.scale(pygame.image.load("elementos_imagens/catbetlogofinal.png"), (640, 330))
+        screen.blit(logo2, (750, 50))
+        pygame.time.wait(3)
+        pygame.display.update()
+        clock.tick(30)
+    pygame.time.wait(3)
     pygame.display.update()
     clock.tick(30)
