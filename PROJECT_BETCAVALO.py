@@ -81,17 +81,17 @@ def fundo_dinamico(x):
 
 teclas = [pygame.K_a, pygame.K_g, pygame.K_l]
 
-gato01 = gato("LARANJA")
+gato01 = gato("NORMIE")
 gato01.spritecheetos(8, 1, 200, 200)
 gato01.Gatorect(100, 300)#300 # 360 #420
 gato01.keys = teclas[0]
 
-gato02 = gato("PRETO")
+gato02 = gato("FUNKY")
 gato02.spritecheetos(8, 2, 200, 200)
 gato02.Gatorect(100, 360)
 gato02.keys = teclas[1]
 
-gato03 = gato("CINZA")
+gato03 = gato("RHAWR")
 gato03.spritecheetos(8, 3, 200, 200)
 gato03.Gatorect(100, 420)
 gato03.keys = teclas[2]
