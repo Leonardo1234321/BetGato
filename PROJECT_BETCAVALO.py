@@ -115,7 +115,7 @@ botao_seguir = pygame.image.load("elementos_imagens/seta_seguir.png")
 botao_voltar = pygame.image.load("elementos_imagens/seta_voltar.png")
 botao_s_rect = botao_seguir.get_rect(center=(1180, 590))
 botao_v_rect = botao_voltar.get_rect(center=(100, 590))
-crias = pygame.transform.scale(pygame.image.load("elementos_imagens/crias.png"), (1280, 660))
+crias = pygame.transform.scale(pygame.image.load("elementos_imagens/crias.jpeg"), (1280, 660))
 
 imagem_a = pygame.image.load("elementos_imagens/a.png")
 imagem_g = pygame.image.load("elementos_imagens/g.png")
